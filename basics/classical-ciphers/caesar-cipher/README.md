@@ -3,8 +3,8 @@
 The Caesar Cipher is the simplest of substitution ciphers: every letter in the plaintext is shifted by a fixed amount down the alphabet. Deciphering is simply done by performing the same shift but the other way down the alphabet. ROT13 is a special case where the shift amount is 13, meaning (because the basic alphabet has 26 letters) it is its own inverse.
 
 ## Features
-- Input via a file or standard input.
-- Easy usage with Linux I/O redirection.
+- Input via a file or standard input
+- Easy usage with Linux I/O redirection
 - Non-alphabetic characters are handled and passed unchanged to output.
 
 ## Dependencies
