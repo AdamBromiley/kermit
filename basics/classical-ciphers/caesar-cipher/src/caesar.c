@@ -82,14 +82,14 @@ int main(int argc, char **argv)
 
                 printf("Usage: %s [-d|-e] [-s SHIFT] [FILE]\n", argv[0]);
                 printf("       %s --rot13 [FILE]\n", argv[0]);
-                printf("       %s -h\n\n", argv[0]);
+                printf("       %s --help\n\n", argv[0]);
                 printf("Caesar Cipher encrypt or decrypt FILE or standard input, to standard output.\n\n");
                 printf("With no FILE, read standard input.\n\n");
                 printf("Mandatory arguments to long options are mandatory for short options too.\n");
                 printf("Cipher:\n");
                 printf("  -d                       Set mode to decrypt\n");
                 printf("  -e                       Set mode to encrypt (default)\n");
-                printf("            --rot13        Use a shift of 13 - overrides encryption mode and SHIFT\n");
+                printf("            --rot13        Use a shift of 13 - overrides cipher mode and SHIFT\n");
                 printf("  -s SHIFT, --shift=SHIFT  Specify cipher shift amount\n");
                 printf("                           [+] Default = 3\n\n");
                 printf("Miscellaneous:\n");
