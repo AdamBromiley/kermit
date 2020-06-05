@@ -6,67 +6,110 @@ NULL =
 SPACE = $(NULL) $(NULL)
 
 
-BDIR = .
-SDIR = src
-IDIR = include
-ODIR = obj
-LDIR = ../../../lib
-# Directories with Makefiles that must be called
-MKDIRS = $(LDIR)/scutils
 
+
+# Output binary
 _BIN = caesar
+BDIR = .
+BIN = $(BDIR)/$(_BIN)
+
+# Source code
 _SRC = caesar.c caesar_cipher.c
+SDIR = src
+SRC = $(patsubst %,$(SDIR)/%,$(_SRC))
+
+# Header files
 _DEPS = caesar.h caesar_cipher.h
+HDIR = include
+DEPS = $(patsubst %,$(HDIR)/%,$(_DEPS))
+
+# Object files
 _OBJS = caesar.o caesar_cipher.o
+ODIR = obj
+OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))
+
+
+
+
+# Path to project library
+LDIR = ../../../lib
+
+# Include directories
+_IDIRS = include $(LDIR)/scutils/include
+IDIRS = $(patsubst %,-I%,$(_IDIRS))
+
 # Libraries to be linked with `-l`
 _LDLIBS = scutils
-# Libraries requiring a specified run-time search path
-_RLIBS = scutils
+LDLIBS = $(patsubst %,-l%,$(_LDLIBS))
+
+# Library search paths, `-L`, and run-time search paths
+_LPATHS = $(LDIR)/scutils
+_RPATHS = $(patsubst %,-rpath=%,$(_LPATHS))
+LPATHS = $(patsubst %,-L%,$(_LPATHS))
+RPATHS = $(subst $(SPACE),$(COMMA),$(_RPATHS))
+
+
+
 
 # Compiler name
 CC = gcc
 
 # Compiler options
-CFLAGS = -g -I$(IDIR) -I$(LDIR)/scutils/include -std=c99 -pedantic \
+CFLAGS = $(IDIRS) -g -std=c99 -pedantic \
 	-Wall -Wextra -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 \
 	-Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs \
 	-Wredundant-decls -Wshadow -Wsign-conversion -Wstrict-overflow=5 \
 	-Wswitch-default -Wundef
 
+
+# Linker name
+LD = gcc
+
 # Linker options
-LDFLAGS = -L$(LDIR)/scutils -Wl,$(RPATHS)
+LDFLAGS = $(LPATHS) -Wl,$(RPATHS) $(LDLIBS)
 
 
-BIN = $(BDIR)/$(_BIN)
-SRC = $(patsubst %,$(SDIR)/%,$(_SRC))
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
-OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))
-
-LDLIBS = $(patsubst %,-l%,$(_LDLIBS))
-
-_RPATHS = $(patsubst %,-rpath=$(LDIR)/%,$(_RLIBS))
-RPATHS = $(subst $(SPACE),$(COMMA),$(_RPATHS))
 
 
+.PHONY: all
 all: $(BIN)
 
 
-# Make dependencies
+
+
+# Directories with other Makefiles that must be called
+MKDIRS = $(LDIR)/scutils
+
+.PHONY: mkdirs $(MKDIRS)
+
+mkdirs: $(MKDIRS)
 $(MKDIRS):
-	@ cd $< && make
+	@ cd $@ && $(MAKE)
+
+
+
 
 # Compile source into object files
-$(OBJS): $(ODIR)/%.o: $(SDIR)/%.c $(MKDIRS)
+$(OBJS): $(ODIR)/%.o: $(SDIR)/%.c
 	@ mkdir -p $(ODIR)
 	$(CC) -c $< $(CFLAGS) -o $@
 
 # Link object files into executable
-$(BIN): $(OBJS) $(MKDIRS)
+$(BIN): $(OBJS) mkdirs
 	@ mkdir -p $(BDIR)
-	$(CC) $(OBJS) $(CFLAGS) $(LDFLAGS) $(LDLIBS) -o $(BIN)
+	$(LD) $(OBJS) $(LDFLAGS) -o $(BIN)
 
 
-# Remove object files and executable
-.PHONY: clean
+
+
+.PHONY: clean cleanall
+
+# Perform `make clean` on dependencies in addition
+cleanall: clean
+	for directory in $(MKDIRS); do \
+		cd $$directory && $(MAKE) clean; \
+	done
+
+# Remove object files and binary
 clean:
 	rm -f $(OBJS) $(BIN)

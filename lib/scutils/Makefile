@@ -1,54 +1,80 @@
 .SUFFIXES:
 .SUFFIXES: .c .h .o .so
 
-SDIR = src
-IDIR = include
-ODIR = obj
-LDIR = .
 
-# Source files
-_SRC = log.c parser.c
+
+
+# Output dynamic library
+_DLIB = libscutils.so
+DLDIR = .
+DLIB = $(DLDIR)/$(_DLIB)
+
+# Source code
+_SRC = parser.c
+SDIR = src
 SRC = $(patsubst %,$(SDIR)/%,$(_SRC))
 
 # Header files
-_DEPS = log.h parser.h
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+_DEPS = parser.h
+HDIR = include
+DEPS = $(patsubst %,$(HDIR)/%,$(_DEPS))
 
 # Object files
-_OBJS = log.o parser.o
+_OBJS = parser.o
+ODIR = obj
 OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))
 
-# Output dynamic library
-DLIB = $(LDIR)/libscutils.so
+
+
+
+# Include directories
+_IDIRS = include
+IDIRS = $(patsubst %,-I%,$(_IDIRS))
+
+
+
 
 # Compiler name
 CC = gcc
 
 # GCC options
-CFLAGS = -g -I$(IDIR) -std=c99 -pedantic \
+CFLAGS = $(IDIRS) -fPIC -g -std=c99 -pedantic \
 	-Wall -Wextra -Wcast-align -Wcast-qual -Wdisabled-optimization -Wformat=2 \
 	-Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs \
 	-Wredundant-decls -Wshadow -Wsign-conversion -Wstrict-overflow=5 \
 	-Wswitch-default -Wundef
 
+
+# Linker name
+LD = gcc
+
 # Linker options
 LDFLAGS = -shared
 
 
+
+
+.PHONY: all
 all: $(DLIB)
 
+
+
+
 # Compile source into object files
-$(ODIR)/%.o: $(SDIR)/%.c
+$(OBJS): $(ODIR)/%.o: $(SDIR)/%.c
 	@ mkdir -p $(ODIR)
-	$(CC) $(CFLAGS) -fPIC -c $< -o $@
+	$(CC) -c $< $(CFLAGS) -o $@
 
 # Compile object files into dynamic library
 $(DLIB): $(OBJS)
-	@ mkdir -p $(LDIR)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+	@ mkdir -p $(DLDIR)
+	$(CC) $^ $(LDFLAGS) -o $@
+
+
 
 
 # Remove object files and dynamic library
 .PHONY: clean
+
 clean:
 	rm -f $(OBJS) $(DLIB)
