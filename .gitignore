@@ -1,6 +1,21 @@
+# Ignore all
+*
+# Unignore all with extensions (to leave binaries ignored)
+!*.*
+# Unignore all directories
+!*/
+
+# Unignore Makefiles
+!Makefile
+
+
 # Object files
 *.o
-**/obj/**
+*.so
+**/obj
 
 # Compiled binaries
-**/bin/**
+**/bin
+
+# Visual Studio Code configuration
+.vscode/
