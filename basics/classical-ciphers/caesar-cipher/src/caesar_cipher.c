@@ -1,6 +1,7 @@
 #include <caesar_cipher.h>
 
 
+/* Encrypt/decrypt string using the Caesar Cipher */
 int caesarEncrypt(char *inputBuffer, char *outputBuffer, size_t inputSize, int shift, enum Mode caesarMode)
 {
     size_t i;
@@ -10,12 +11,12 @@ int caesarEncrypt(char *inputBuffer, char *outputBuffer, size_t inputSize, int s
 
     switch (caesarMode)
     {
-        case ENCRYPT:
+        case MODE_ENCRYPT:
             break;
-        case DECRYPT:
+        case MODE_DECRYPT:
             shift = -(shift);
             break;
-        case ROT13:
+        case MODE_ROT13:
             shift = ROT13_SHIFT;
             break;
         default:
@@ -26,16 +27,21 @@ int caesarEncrypt(char *inputBuffer, char *outputBuffer, size_t inputSize, int s
     {
         c = inputBuffer[i];
 
+        /* Ignore non-alphabetic characters */
         if (isalpha(c) != 0)
         {
             baseChar = isupper(c) ? BASE_UPPER : BASE_LOWER;
 
+            /* Get index of c in the alphabet */
             c -= baseChar;
+            /* Add shift */
             c = (c + shift) % ALPHABET_LENGTH;
+            /* If shift is negative and c goes below 0 (% is not modulo) */
             if (c < 0)
             {
                 c += ALPHABET_LENGTH;
             }
+            /* Convert alphabet index back to ASCII char */
             c += baseChar;
         }
 
