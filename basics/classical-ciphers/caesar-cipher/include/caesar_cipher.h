@@ -2,7 +2,7 @@
 #define CAESAR_CIPHER_H
 
 
-#include <stdio.h>
+#include <stddef.h>
 #include <ctype.h>
 
 
@@ -22,7 +22,7 @@ enum CaesarMode
 };
 
 
-int caesarEncrypt(char *inputBuffer, char *outputBuffer, size_t inputSize, int shift, enum CaesarMode mode);
+int caesarEncrypt(char *ciphertext, const char *plaintext, size_t plaintextSize, int shift, enum CaesarMode mode);
 
 
 #endif
