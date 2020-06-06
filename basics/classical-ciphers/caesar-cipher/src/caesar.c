@@ -3,11 +3,11 @@
 
 int main(int argc, char **argv)
 {
-    char *programName = argv[0];
+    const char *programName = argv[0];
 
     int result;
 
-    int rot13Flag = 0;
+    _Bool rot13Flag = 0;
     enum CaesarMode encryptionMode = CAESAR_NONE;
     long int encryptionShift = SHIFT_DEFAULT;
     
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 
 
 /* Usage message for --help */
-int usage(char *programName)
+int usage(const char *programName)
 {
     printf("Usage: %s [-d|-e] [-s SHIFT] [FILE]\n", programName);
     printf("       %s --rot13 [FILE]\n", programName);
@@ -174,7 +174,7 @@ int ioHandler(FILE *inputStream, FILE *outputStream, int encryptionShift, enum C
             continue;
         }
 
-        if (caesarEncrypt(readBuffer, outputBuffer, readBytes, encryptionShift, encryptionMode) != 0)
+        if (caesarEncrypt(outputBuffer, readBuffer, readBytes, encryptionShift, encryptionMode) != 0)
         {
             return 1;
         }
