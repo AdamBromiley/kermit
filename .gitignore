@@ -5,7 +5,8 @@
 # Unignore all directories
 !*/
 
-# Unignore Makefiles
+# Unignore useful, extensionless files
+!LICENSE
 !Makefile
 
 
