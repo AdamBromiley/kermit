@@ -30,8 +30,8 @@ enum strtolError
 };
 
 
-int getoptErrorMessage(enum GetoptError optionError, char *programName, char shortOption, char *longOption);
-int stringToLong(char *buffer, long int *x, long int xMin, long int xMax, int base);
+int getoptErrorMessage(enum GetoptError optionError, const char *programName, char shortOption, const char *longOption);
+int stringToLong(const char *buffer, long int *x, long int xMin, long int xMax, int base);
 
 
 #endif

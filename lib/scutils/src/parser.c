@@ -2,7 +2,7 @@
 
 
 /* Convert error code to message when parsing command line arguments */
-int getoptErrorMessage(enum GetoptError optionError, char *programName, char shortOption, char *longOption)
+int getoptErrorMessage(enum GetoptError optionError, const char *programName, char shortOption, const char *longOption)
 {
     switch (optionError)
     {
@@ -43,7 +43,7 @@ int getoptErrorMessage(enum GetoptError optionError, char *programName, char sho
 
 
 /* Convert string to long int and handle errors */
-int stringToLong(char *buffer, long int *x, long int xMin, long int xMax, int base)
+int stringToLong(const char *buffer, long int *x, long int xMin, long int xMax, int base)
 {
     char *endptr;
 
