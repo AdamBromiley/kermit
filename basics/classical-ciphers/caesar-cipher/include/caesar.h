@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <getopt.h>
 #include <limits.h>
 
@@ -21,7 +22,7 @@
 #define OUTPUT_BUFFER_SIZE READ_BUFFER_SIZE
 
 
-int usage(char *programName);
+int usage(const char *programName);
 int ioHandler(FILE *inputStream, FILE *outputStream, int encryptionShift, enum CaesarMode encryptionMode);
 
 
