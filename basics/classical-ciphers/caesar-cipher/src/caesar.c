@@ -3,10 +3,12 @@
 
 int main(int argc, char **argv)
 {
+    char *programName = argv[0];
+
     int result;
 
     int rot13Flag = 0;
-    enum Mode encryptionMode = NONE;
+    enum Mode encryptionMode = MODE_NONE;
     long int encryptionShift = SHIFT_DEFAULT;
     
     char *inputFilePath;
@@ -33,98 +35,58 @@ int main(int argc, char **argv)
             case 0:
                 break;
             case 'd':
-                if (encryptionMode == ENCRYPT)
+                if (encryptionMode == MODE_ENCRYPT)
                 {
-                    fprintf(stderr, "%s: -%c: Option mutually exclusive with encrypt mode\n", argv[0], optionID);
-                    return EXIT_FAILURE;
+                    fprintf(stderr, "%s: -%c: Option mutually exclusive with encrypt mode\n", programName, optionID);
+                    return getoptErrorMessage(OPT_NONE, programName, 0, NULL);
                 }
                 
-                encryptionMode = DECRYPT;
+                encryptionMode = MODE_DECRYPT;
                 break;
             case 'e':
-                if (encryptionMode == DECRYPT)
+                if (encryptionMode == MODE_DECRYPT)
                 {
-                    fprintf(stderr, "%s: -%c: Option mutually exclusive with decrypt mode\n", argv[0], optionID);
-                    return EXIT_FAILURE;
+                    fprintf(stderr, "%s: -%c: Option mutually exclusive with decrypt mode\n", programName, optionID);
+                    return getoptErrorMessage(OPT_NONE, programName, 0, NULL);
                 }
                 
-                encryptionMode = ENCRYPT;
+                encryptionMode = MODE_ENCRYPT;
                 break;
             case 's':
                 result = stringToLong(optarg, &encryptionShift, SHIFT_MIN, SHIFT_MAX, 10);
                 
-                if (result != 0)
+                if (result != STRTOL_NONE)
                 {
                     if (result == STRTOL_ERANGE || result == STRTOL_EMIN || result == STRTOL_EMAX)
                     {
                         fprintf(stderr, "%s: -%c: Encryption shift out of range, it must be between %d and %d\n", 
-                            argv[0], optionID, SHIFT_MIN, SHIFT_MAX);
+                            programName, optionID, SHIFT_MIN, SHIFT_MAX);
                     }
                     else if (result == STRTOL_ERROR || result == STRTOL_EEND)
                     {
-                        fprintf(stderr, "%s: -%c: Invalid encryption shift\n", argv[0], optionID);
+                        fprintf(stderr, "%s: -%c: Invalid encryption shift\n", programName, optionID);
                     }
                     else
                     {
-                        fprintf(stderr, "%s: -%c: Failed to parse encryption shift\n", argv[0], optionID);
+                        return getoptErrorMessage(OPT_EARG, programName, optionID, NULL);
                     }
 
-                    return EXIT_FAILURE;
+                    return getoptErrorMessage(OPT_NONE, programName, 0, NULL);
                 }
 
                 break;
             case 'h':
-                if (argc != 2)
-                {
-                    fprintf(stderr, "%s: --help: Option is mutually exclusive with all other options\n", argv[0]);
-                    return EXIT_FAILURE;
-                }
-
-                printf("Usage: %s [-d|-e] [-s SHIFT] [FILE]\n", argv[0]);
-                printf("       %s --rot13 [FILE]\n", argv[0]);
-                printf("       %s --help\n\n", argv[0]);
-                printf("Caesar Cipher encrypt or decrypt FILE or standard input, to standard output.\n\n");
-                printf("With no FILE, read standard input.\n\n");
-                printf("Mandatory arguments to long options are mandatory for short options too.\n");
-                printf("Cipher:\n");
-                printf("  -d                       Set mode to decrypt\n");
-                printf("  -e                       Set mode to encrypt (default)\n");
-                printf("            --rot13        Use a shift of 13 - overrides cipher mode and SHIFT\n");
-                printf("  -s SHIFT, --shift=SHIFT  Specify cipher shift amount\n");
-                printf("                           [+] Default = 3\n\n");
-                printf("Miscellaneous:\n");
-                printf("            --help         Display this help message and exit\n\n");
-
-                return EXIT_SUCCESS;
+                return usage(programName);
             case '?':
-                if (optopt == 0)
-                {
-                    fprintf(stderr, "%s: Invalid option: \'%s\'\n", argv[0], argv[optind - 1]);
-                }
-                else
-                {
-                    fprintf(stderr, "%s: Invalid option: \'-%c\'\n", argv[0], optopt);
-                }
-                return EXIT_FAILURE;
+                return getoptErrorMessage(OPT_EOPT, programName, optopt, argv[optind - 1]);
             case ':':
-                fprintf(stderr, "%s: -%c: Option argument required\n", argv[0], optopt);
-                return EXIT_FAILURE;
+                return getoptErrorMessage(OPT_ENOARG, programName, optopt, NULL);
             default:
-                fprintf(stderr, "%s: Unknown error when reading command-line options\n", argv[0]);
-                return EXIT_FAILURE;
+                return getoptErrorMessage(OPT_ERROR, programName, 0, NULL);
         }
     }
 
-    if (encryptionMode == NONE)
-    {
-        encryptionMode = ENCRYPT;
-    }
-
-    if (rot13Flag != 0)
-    {
-        encryptionMode = ROT13;
-    }
-
+    /* Get input file */
     if (optind == argc)
     {
         inputFile = stdin;
@@ -135,26 +97,61 @@ int main(int argc, char **argv)
 
         if ((inputFile = fopen(inputFilePath, "rb")) == NULL)
         {
-            fprintf(stderr, "%s: Could not open input file \"%s\"\n", argv[0], inputFilePath);
+            fprintf(stderr, "%s: %s: Could not open file\n", programName, inputFilePath);
             return EXIT_FAILURE;
         }
     }
     else
     {
-        fprintf(stderr, "%s: Too many operands\n", argv[0]);
-        return EXIT_FAILURE;
+        return getoptErrorMessage(OPT_EARGC_HIGH, programName, 0, NULL);
     }
-    
+
+    /* Set encryption mode if unset (or --rot13) */
+    if (rot13Flag != 0)
+    {
+        encryptionMode = MODE_ROT13;
+    }
+    else if (encryptionMode == MODE_NONE)
+    {
+        encryptionMode = MODE_ENCRYPT;
+    }
+
     if (ioHandler(inputFile, stdout, encryptionShift, encryptionMode) != 0)
     {
-        fprintf(stderr, "%s: Failed to complete operation\n", argv[0]);
+        fprintf(stderr, "%s: Failed to complete operation\n", programName);
+        fclose(inputFile);
         return EXIT_FAILURE;
     }
+
+    fclose(inputFile);
 
     return EXIT_SUCCESS;
 }
 
 
+/* Usage message for --help */
+int usage(char *programName)
+{
+    printf("Usage: %s [-d|-e] [-s SHIFT] [FILE]\n", programName);
+    printf("       %s --rot13 [FILE]\n", programName);
+    printf("       %s --help\n\n", programName);
+    printf("Caesar Cipher encrypt or decrypt FILE or standard input, to standard output.\n\n");
+    printf("With no FILE, read standard input.\n\n");
+    printf("Mandatory arguments to long options are mandatory for short options too.\n");
+    printf("Cipher:\n");
+    printf("  -d                       Set mode to decrypt\n");
+    printf("  -e                       Set mode to encrypt (default)\n");
+    printf("            --rot13        Use a shift of 13 - overrides cipher mode and SHIFT\n");
+    printf("  -s SHIFT, --shift=SHIFT  Specify cipher shift amount\n");
+    printf("                           [+] Default = 3\n\n");
+    printf("Miscellaneous:\n");
+    printf("            --help         Display this help message and exit\n\n");
+
+    return EXIT_SUCCESS;
+}
+
+
+/* Buffer input stream and encrypt */
 int ioHandler(FILE *inputStream, FILE *outputStream, int encryptionShift, enum Mode encryptionMode)
 {
     size_t readBytes;
@@ -162,6 +159,7 @@ int ioHandler(FILE *inputStream, FILE *outputStream, int encryptionShift, enum M
     char readBuffer[READ_BUFFER_SIZE];
     char outputBuffer[OUTPUT_BUFFER_SIZE];
 
+    /* Keep on reading unless error or EOF */
     do
     {
         readBytes = fread(readBuffer, sizeof(char), sizeof(readBuffer) / sizeof(char), inputStream);
