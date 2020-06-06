@@ -15,10 +15,10 @@
 
 enum Mode
 {
-        NONE,
-        ENCRYPT,
-        DECRYPT,
-        ROT13
+        MODE_NONE,
+        MODE_ENCRYPT,
+        MODE_DECRYPT,
+        MODE_ROT13
 };
 
 
