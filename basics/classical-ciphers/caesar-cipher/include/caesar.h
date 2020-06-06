@@ -22,7 +22,7 @@
 
 
 int usage(char *programName);
-int ioHandler(FILE *inputStream, FILE *outputStream, int encryptionShift, enum Mode encryptionMode);
+int ioHandler(FILE *inputStream, FILE *outputStream, int encryptionShift, enum CaesarMode encryptionMode);
 
 
 #endif

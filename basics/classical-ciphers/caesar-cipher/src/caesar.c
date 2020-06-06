@@ -8,7 +8,7 @@ int main(int argc, char **argv)
     int result;
 
     int rot13Flag = 0;
-    enum Mode encryptionMode = MODE_NONE;
+    enum CaesarMode encryptionMode = CAESAR_NONE;
     long int encryptionShift = SHIFT_DEFAULT;
     
     char *inputFilePath;
@@ -35,22 +35,22 @@ int main(int argc, char **argv)
             case 0:
                 break;
             case 'd':
-                if (encryptionMode == MODE_ENCRYPT)
+                if (encryptionMode == CAESAR_ENCRYPT)
                 {
                     fprintf(stderr, "%s: -%c: Option mutually exclusive with encrypt mode\n", programName, optionID);
                     return getoptErrorMessage(OPT_NONE, programName, 0, NULL);
                 }
                 
-                encryptionMode = MODE_DECRYPT;
+                encryptionMode = CAESAR_DECRYPT;
                 break;
             case 'e':
-                if (encryptionMode == MODE_DECRYPT)
+                if (encryptionMode == CAESAR_DECRYPT)
                 {
                     fprintf(stderr, "%s: -%c: Option mutually exclusive with decrypt mode\n", programName, optionID);
                     return getoptErrorMessage(OPT_NONE, programName, 0, NULL);
                 }
                 
-                encryptionMode = MODE_ENCRYPT;
+                encryptionMode = CAESAR_ENCRYPT;
                 break;
             case 's':
                 result = stringToLong(optarg, &encryptionShift, SHIFT_MIN, SHIFT_MAX, 10);
@@ -109,11 +109,11 @@ int main(int argc, char **argv)
     /* Set encryption mode if unset (or --rot13) */
     if (rot13Flag != 0)
     {
-        encryptionMode = MODE_ROT13;
+        encryptionMode = CAESAR_ROT13;
     }
-    else if (encryptionMode == MODE_NONE)
+    else if (encryptionMode == CAESAR_NONE)
     {
-        encryptionMode = MODE_ENCRYPT;
+        encryptionMode = CAESAR_ENCRYPT;
     }
 
     if (ioHandler(inputFile, stdout, encryptionShift, encryptionMode) != 0)
@@ -152,7 +152,7 @@ int usage(char *programName)
 
 
 /* Buffer input stream and encrypt */
-int ioHandler(FILE *inputStream, FILE *outputStream, int encryptionShift, enum Mode encryptionMode)
+int ioHandler(FILE *inputStream, FILE *outputStream, int encryptionShift, enum CaesarMode encryptionMode)
 {
     size_t readBytes;
 

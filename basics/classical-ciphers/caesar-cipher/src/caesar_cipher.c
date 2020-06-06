@@ -2,21 +2,21 @@
 
 
 /* Encrypt/decrypt string using the Caesar Cipher */
-int caesarEncrypt(char *inputBuffer, char *outputBuffer, size_t inputSize, int shift, enum Mode caesarMode)
+int caesarEncrypt(char *inputBuffer, char *outputBuffer, size_t inputSize, int shift, enum CaesarMode mode)
 {
     size_t i;
 
     char c;
     char baseChar;
 
-    switch (caesarMode)
+    switch (mode)
     {
-        case MODE_ENCRYPT:
+        case CAESAR_ENCRYPT:
             break;
-        case MODE_DECRYPT:
+        case CAESAR_DECRYPT:
             shift = -(shift);
             break;
-        case MODE_ROT13:
+        case CAESAR_ROT13:
             shift = ROT13_SHIFT;
             break;
         default:

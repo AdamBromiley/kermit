@@ -13,16 +13,16 @@
 #define ALPHABET_LENGTH 26
 
 
-enum Mode
+enum CaesarMode
 {
-        MODE_NONE,
-        MODE_ENCRYPT,
-        MODE_DECRYPT,
-        MODE_ROT13
+        CAESAR_NONE,
+        CAESAR_ENCRYPT,
+        CAESAR_DECRYPT,
+        CAESAR_ROT13
 };
 
 
-int caesarEncrypt(char *inputBuffer, char *outputBuffer, size_t inputSize, int shift, enum Mode caesarMode);
+int caesarEncrypt(char *inputBuffer, char *outputBuffer, size_t inputSize, int shift, enum CaesarMode mode);
 
 
 #endif
