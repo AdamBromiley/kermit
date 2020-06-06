@@ -21,6 +21,7 @@
 #define OUTPUT_BUFFER_SIZE READ_BUFFER_SIZE
 
 
+int usage(char *programName);
 int ioHandler(FILE *inputStream, FILE *outputStream, int encryptionShift, enum Mode encryptionMode);
 
 
