@@ -2,12 +2,10 @@
 
 
 /* Encrypt/decrypt string using the Caesar Cipher */
-int caesarEncrypt(char *inputBuffer, char *outputBuffer, size_t inputSize, int shift, enum CaesarMode mode)
+int caesarEncrypt(char *ciphertext, const char *plaintext, size_t plaintextSize, int shift, enum CaesarMode mode)
 {
     size_t i;
-
-    char c;
-    char baseChar;
+    char c, baseChar;
 
     switch (mode)
     {
@@ -23,29 +21,31 @@ int caesarEncrypt(char *inputBuffer, char *outputBuffer, size_t inputSize, int s
             return 1;
     }
 
-    for (i = 0; i < inputSize; i++)
+    for (i = 0; i < plaintextSize; ++i)
     {
-        c = inputBuffer[i];
+        c = plaintext[i];
 
         /* Ignore non-alphabetic characters */
         if (isalpha(c) != 0)
         {
-            baseChar = isupper(c) ? BASE_UPPER : BASE_LOWER;
-
             /* Get index of c in the alphabet */
+            baseChar = isupper(c) ? BASE_UPPER : BASE_LOWER;
             c -= baseChar;
+
             /* Add shift */
             c = (c + shift) % ALPHABET_LENGTH;
+
             /* If shift is negative and c goes below 0 (% is not modulo) */
             if (c < 0)
             {
                 c += ALPHABET_LENGTH;
             }
+
             /* Convert alphabet index back to ASCII char */
             c += baseChar;
         }
 
-        outputBuffer[i] = c;
+        ciphertext[i] = c;
     }
 
     return 0;
